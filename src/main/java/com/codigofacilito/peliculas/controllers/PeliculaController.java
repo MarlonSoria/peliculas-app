@@ -1,13 +1,13 @@
 package com.codigofacilito.peliculas.controllers;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +18,8 @@ import com.codigofacilito.peliculas.entities.Pelicula;
 import com.codigofacilito.peliculas.services.IActorService;
 import com.codigofacilito.peliculas.services.IGeneroService;
 import com.codigofacilito.peliculas.services.IPeliculaService;
+
+import jakarta.validation.Valid;
 
 
 @Controller
@@ -55,7 +57,13 @@ public class PeliculaController  {
 	
 	
 	@PostMapping("/pelicula")
-	public String guardar(Pelicula pelicula , @ModelAttribute(name ="ids" ) String ids) {
+	public String guardar(@Valid Pelicula pelicula,BindingResult br , @ModelAttribute(name ="ids" ) String ids,Model model ) {
+		
+		if(br.hasErrors()) {
+			model.addAttribute("generos",generoService.findAll());
+			model.addAttribute("actores",actorService.findAll());
+			return "pelicula";
+		}
 	
 		List<Long> idsProtagonistas = Arrays.stream(ids.split(",")).map(Long:: parseLong).collect(Collectors.toList());
 		List<Actor> protagonistas = actorService.findAllById(idsProtagonistas);

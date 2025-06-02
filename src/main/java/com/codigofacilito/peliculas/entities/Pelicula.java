@@ -1,7 +1,7 @@
 package com.codigofacilito.peliculas.entities;
 
 import java.io.Serializable;
-import java.sql.Date;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -14,7 +14,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -31,15 +30,16 @@ public class Pelicula implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	
+	@NotEmpty(message = "Ingresa un nombre")
 	private String nombre;
 
 	@Column(name = "fecha_estreno")
 	@Temporal(TemporalType.DATE)
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@NotNull(message = "El campo fecha de estreno no debe estar vacio")
 	private LocalDate fechaEstreno;
 	
-
+	@NotNull()
 	@ManyToOne
 	private Genero genero;
 	@ManyToMany

@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.codigofacilito.peliculas.dao.IGeneroRepository;
 import com.codigofacilito.peliculas.entities.Genero;
 import com.codigofacilito.peliculas.services.IGeneroService;
 
