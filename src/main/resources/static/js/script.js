@@ -46,3 +46,21 @@ function eliminarActor(btn) {
 
 	$(node).remove();
 }
+
+
+function previsualizar(){
+	let reader= new FileReader;
+	
+	reader.readAsDataURL(document.getElementById("imagen").files[0]);
+	
+	reader.onload = function(e){
+		
+		let vista = document.getElementById("vista_previa");
+		vista.classList.remove("d-none");
+		vista.style.backgroundImage = 'url("' + e.target.result + '")';
+		
+	}
+	
+	
+}
+
