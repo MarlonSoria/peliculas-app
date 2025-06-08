@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.codigofacilito.peliculas.entities.Actor;
 import com.codigofacilito.peliculas.entities.Pelicula;
@@ -112,8 +116,24 @@ public class PeliculaController {
 	}
 
 	@GetMapping({ "/", "/home", "/index" })
-	public String home(Model model) {
-		model.addAttribute("peliculas", service.finAll());
+	public String home(Model model , @RequestParam(name = "pagina",required = false , defaultValue = "0") Integer pagina) {
+		PageRequest pr = PageRequest.of(pagina, 9);
+		Page<Pelicula> page = service.finAll(pr);
+		
+		
+		
+		model.addAttribute("peliculas", page.getContent());
+		
+		if(page.getTotalPages()>0) {
+			List<Integer> paginas = IntStream.rangeClosed(1, page.getTotalPages()).boxed().toList();
+			model.addAttribute("paginas",paginas);
+		}
+		
+		model.addAttribute("actual",pagina + 1);
+		model.addAttribute("titulo","Catalogo de peliculas");
+		
+		
+		
 		//model.addAttribute("msj", "La App esta en mantenimiento");
 		//model.addAttribute("tipoMsj", "danger");
 		return "home";
@@ -121,10 +141,34 @@ public class PeliculaController {
 
 
 	@GetMapping({ "/listado" })
-	public String listado(Model model) {
+	public String listado(Model model, @RequestParam(required = false) String msj, @RequestParam(required = false) String tipoMsj) {
 		model.addAttribute("titulo","Listado de Películas");
 		model.addAttribute("peliculas", service.finAll());
+		
+	    if (msj != null && tipoMsj != null) {
+	        model.addAttribute("msj", msj);
+	        model.addAttribute("tipoMsj", tipoMsj);
+	    }
+		
 		return "listado";
 	}
+	
+	
+	@GetMapping("pelicula/{id}/delete")
+	public String eliminar(@PathVariable(name = "id") Long id, Model model,RedirectAttributes redirectAttributes) {
+		service.delete(id);
+		
+		redirectAttributes.addAttribute("msj","La pelicula fue eliminada correctamente");
+		redirectAttributes.addAttribute("tipoMsj", "success"); 
+		return "redirect:/listado";
+	}
 
+	
+	
+	
+	
+	
+	
+	
+	
 }
