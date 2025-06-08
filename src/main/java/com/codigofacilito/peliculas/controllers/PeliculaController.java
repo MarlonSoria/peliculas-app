@@ -51,8 +51,19 @@ public class PeliculaController {
 
 	@GetMapping("pelicula/{id}")
 	public String editar(@PathVariable(name = "id") Long id, Model model) {
-		Pelicula pelicula = new Pelicula();
+		Pelicula pelicula = service.findById(id);
+		String ids="";
+		
+		for(Actor actor: pelicula.getProtagonistas()) {
+			if("".equals(ids)) {
+				ids = actor.getId().toString();
+			}else {
+				ids = ids + "," + actor.getId().toString();
+			}
+		}
+		
 		model.addAttribute("pelicula", pelicula);
+		model.addAttribute("ids",ids);
 		model.addAttribute("generos", generoService.findAll());
 		model.addAttribute("actores", actorService.findAll());
 		model.addAttribute("titulo", "Editar Pelicula");
@@ -81,11 +92,17 @@ public class PeliculaController {
 		}else{
 			pelicula.setImagen("_default.jpg");
 		}
+		
+		if(ids !=null && !"".equals(ids)) {
+			
+			List<Long> idsProtagonistas = Arrays.stream(ids.split(",")).map(Long::parseLong).collect(Collectors.toList());
+			List<Actor> protagonistas = actorService.findAllById(idsProtagonistas);
 
-		List<Long> idsProtagonistas = Arrays.stream(ids.split(",")).map(Long::parseLong).collect(Collectors.toList());
-		List<Actor> protagonistas = actorService.findAllById(idsProtagonistas);
-
-		pelicula.setProtagonistas(protagonistas);
+			pelicula.setProtagonistas(protagonistas);
+			
+		}
+		
+	
 		service.save(pelicula);
 		return "redirect:home";
 	}
@@ -93,7 +110,6 @@ public class PeliculaController {
 	private String getExtension(String archivo) {
 		return archivo.substring(archivo.lastIndexOf("."));
 	}
-	
 
 	@GetMapping({ "/", "/home", "/index" })
 	public String home(Model model) {
@@ -101,6 +117,14 @@ public class PeliculaController {
 		//model.addAttribute("msj", "La App esta en mantenimiento");
 		//model.addAttribute("tipoMsj", "danger");
 		return "home";
+	}
+
+
+	@GetMapping({ "/listado" })
+	public String listado(Model model) {
+		model.addAttribute("titulo","Listado de Películas");
+		model.addAttribute("peliculas", service.finAll());
+		return "listado";
 	}
 
 }
